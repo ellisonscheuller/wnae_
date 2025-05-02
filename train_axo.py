@@ -17,17 +17,23 @@ device = torch.device('cpu')
 batch_size = 2048
 
 # f = h5py.File("./data/newdata/Data.h5","r")
-f = h5py.File("/pfvolcentral/notebooks/btagging/Data.h5","r")
+#f = h5py.File("/pfvolcentral/notebooks/btagging/Data.h5","r")
+#f = h5.File('/axovol/training/v5/conditionsupdate_apr25.h5', 'r')
+f = h5py.File('../../training/v5/conditionsupdate_apr25.h5', 'r')
 
-x_train = f["Background_data"]["Train"]["DATA"][:]
-x_test = f["Background_data"]["Test"]["DATA"][:]
-x_sig = f["Signal_data"]["GluGluHToBB_M-125"]["DATA"][:]
+x_train = f['data']["Background_data"]["Train"]["DATA"][:]
+x_test = f['data']["Background_data"]["Test"]["DATA"][:]
+x_sig = f['data']["Signal_data"]["GluGluHToBB_M-125"]["DATA"][:]
 
-scale = f["Normalisation"]["norm_scale"][:]
-bias = f["Normalisation"]["norm_bias"][:]
+scale = f['data']["Normalisation"]["norm_scale"][:]
+bias = f['data']["Normalisation"]["norm_bias"][:]
 
-data_config = json.loads(f.attrs["config"])
-constituents = data_config["Read_configs"]["BACKGROUND"]["constituents"]
+#data_config = json.loads(f.attrs["config"])
+#print(json.dumps(data_config, indent=2)) # added to check and debug
+#constituents = data_config["Read_configs"]["BACKGROUND"]["constituents"]
+
+cfg = json.loads(f.attrs["config"])
+constituents = cfg["data_config"]["Read_configs"]["BACKGROUND"]["constituents"]
 
 x_train = torch.tensor(np.reshape(x_train,(x_train.shape[0],-1))).to(torch.float32).to(device)
 x_test = torch.tensor(np.reshape(x_test,(x_test.shape[0],-1))).to(torch.float32).to(device)
@@ -71,7 +77,7 @@ input_size = x_train.shape[-1]
 intermediate_architecture_encoder = (28,15)
 intermediate_architecture_decoder = (24, 32, 64, 128, 57)
 bottleneck_size = 8
-output_path = "/pfvolcentral/notebooks/btagging/wnae6"
+output_path = "/output"
 # output_path = "~/Desktop"
 
 if os.path.exists(output_path) and os.path.isdir(output_path):
