@@ -13,7 +13,7 @@ import os
 import shutil
 import wandb
 
-wandb.login(key="24d1d60ce26563c74d290d7b487cb104fc251271")
+wandb.login()
     
 wandb.init(project = "WNAE", config = config.training_params)
 
