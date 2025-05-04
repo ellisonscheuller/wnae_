@@ -28,3 +28,12 @@ python make_plots.py <output_path>
 ```
 where `<output_path>` must be replaced by the path where the output of the training will be written.
 
+## To run on a cluster:
+To test with a pod:
+* Use the pod `nrp/wnae_pod.yaml` to make the pod 
+* In the pod: `git clone https://github.com/ellisonscheuller/wnae_.git`
+* `pip install -r requirements.txt`
+* Then do testing as needed
+
+To run the job:
+`nrp/wnae_job.yaml`
