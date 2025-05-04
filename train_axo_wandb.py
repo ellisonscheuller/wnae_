@@ -15,7 +15,7 @@ import wandb
 
 wandb.login(key="24d1d60ce26563c74d290d7b487cb104fc251271")
     
-wandb.init(project = "WNAE", config = config)
+wandb.init(project = "WNAE", config = config.training_params)
 
 
 #device = torch.device('cpu')
