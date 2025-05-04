@@ -6,6 +6,7 @@ from wnae._sample_buffer import SampleBuffer
 from wnae._mcmc_utils import sample_langevin
 from wnae._logger import log
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class WNAE(torch.nn.Module):
     """Wasserstein Normalized Autoencoder.
@@ -332,19 +333,45 @@ class WNAE(torch.nn.Module):
         elif self.sampling == "omi":
             return self.__sample_omi(n_sample, device, replay=replay)
 
+#    def __compute_emd(self, positive_samples, negative_samples):
+ #       if int(ot.__version__.split(".")[1]) < 9:
+  #          log.warning(f"Your optimal transport ot version is {ot.__version__}")
+   #         log.warning(f"EMD calculation not supported for gradient descent, will probably crash.")
+    #    loss_matrix = ot.dist(positive_samples, negative_samples)
+     #   n_examples = len(positive_samples)
+      #  weights = torch.ones(n_examples) / n_examples
+       # emd = ot.emd2(
+        #    weights,
+         #   weights,
+          #  loss_matrix,
+           # numItermax=1e6,
+        #)
+
+        #return emd
+
     def __compute_emd(self, positive_samples, negative_samples):
-        if int(ot.__version__.split(".")[1]) < 9:
-            log.warning(f"Your optimal transport ot version is {ot.__version__}")
-            log.warning(f"EMD calculation not supported for gradient descent, will probably crash.")
-        loss_matrix = ot.dist(positive_samples, negative_samples)
-        n_examples = len(positive_samples)
-        weights = torch.ones(n_examples) / n_examples
-        emd = ot.emd2(
-            weights,
-            weights,
-            loss_matrix,
-            numItermax=1e6,
-        )
+        """
+        Compute the Earth Mover's Distance (EMD) between positive_samples and negative_samples
+        in a way that keeps the result inside the autograd graph.  All helper tensors are created
+        on the same device/dtype as the inputs so no CUDA/CPU mismatch occurs.
+
+        Returns
+        -------
+        torch.Tensor
+            A scalar tensor whose `.requires_grad` follows from the inputs, so it can be used as
+            a loss term in `backward()`.
+        """
+        # POT ≥ 0.9 supports a fully‑torch backend; keep everything on the input device
+        device = positive_samples.device
+        dtype  = positive_samples.dtype
+
+        # Pairwise cost matrix (torch, differentiable)
+        loss_matrix = ot.dist(positive_samples, negative_samples, p=2)
+
+        n_examples = positive_samples.size(0)
+        weights = torch.ones(n_examples, device=device, dtype=dtype) / n_examples
+
+        emd = ot.emd2(weights, weights, loss_matrix, numItermax=1_000_000)
 
         return emd
 

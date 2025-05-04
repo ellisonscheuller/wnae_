@@ -55,8 +55,9 @@ class TrainerWassersteinNormalizedAutoEncoder():
     def __make_sample_feature_1D_plot(self, positive_samples, negative_samples):
         # print(positive_samples.shape)
         # print(negative_samples.shape)
-                
-        # pick a feature from positive samples(input) and negative samples(mcmc) and plot their value distribution in one plot
+        positive_samples = positive_samples.detach().cpu().numpy()
+        negative_samples = negative_samples.detach().cpu().numpy()
+       # pick a feature from positive samples(input) and negative samples(mcmc) and plot their value distribution in one plot
         for feature_idx in range(positive_samples.shape[1]):
     
             Path(f"{self.output_path}/sample_feature_1D_hist/feature_{feature_idx}").mkdir(parents=True, exist_ok=True)

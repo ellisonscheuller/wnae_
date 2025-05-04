@@ -12,7 +12,10 @@ from pathlib import Path
 import os
 import shutil
 
-device = torch.device('cpu')
+#device = torch.device('cpu')
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+print(device)
     
 batch_size = 2048
 
@@ -77,7 +80,7 @@ input_size = x_train.shape[-1]
 intermediate_architecture_encoder = (28,15)
 intermediate_architecture_decoder = (24, 32, 64, 128, 57)
 bottleneck_size = 8
-output_path = "/output"
+output_path = "output_5_4"
 # output_path = "~/Desktop"
 
 if os.path.exists(output_path) and os.path.isdir(output_path):
