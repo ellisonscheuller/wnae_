@@ -243,6 +243,13 @@ class TrainerWassersteinNormalizedAutoEncoder():
             self.metrics_tracker["training_loss"].append(training_loss)
             self.metrics_tracker["validation_loss"].append(validation_loss)
             self.metrics_tracker["auc"].append(auc)
+
+            wandb.log({
+                "epoch": i_epoch,
+                "train_loss": training_loss,
+                "val_loss": validation_loss,
+                "auc": auc,
+            })
             
             # LR scheduler step
             if lr_scheduler is not None:
@@ -284,6 +291,9 @@ class TrainerWassersteinNormalizedAutoEncoder():
             file.write(f"Best epoch: {best_epoch}\n")
             if early_stopped:
                 file.write(f"Early stopping at epoch {i_epoch}.\n")
+
+        self.save_train_plot()
+        wandb.log({"training_plot": wandb.Image(f"{self.output_path}/train_history.png")})
 
     def train(self):
         """
